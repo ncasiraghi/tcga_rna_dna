@@ -4,9 +4,17 @@ library(parallel)
 
 setwd('/BCGLAB/2020_signatures/stats/')
 
+# params
+
+mc.cores <- 35
+
+length.sw <- 5
+
+sample_type <- 'DNA_tumor'
+  
 # pileup on snps
 
-lf <- list.files('/BCGLAB/2020_signatures/pileup/TCGA-BRCA/',pattern = '_DNA_tumor$',full.names = TRUE)
+lf <- list.files('/BCGLAB/2020_signatures/pileup/TCGA-BRCA',pattern = paste0('_',sample_type,'$'),full.names = TRUE)
 
 # cytobands
 
@@ -23,11 +31,12 @@ bands <- bands %>%
 
 main_out <- list()
 
-for (id in lf[1:10]) {
-  message(id)
+for (id in lf) {
+  message(paste("[",Sys.time(),"]\t",id))
+  
   file <- list.files(id,full.names = TRUE,pattern = '\\.snps$')
   
-  snps <- fread(file,data.table = FALSE,nThread = 4) 
+  snps <- fread(file,data.table = FALSE,nThread = 5) 
   
   sl <- snps %>% 
     filter(af >= 0.2, af <= 0.8) %>% 
@@ -87,10 +96,10 @@ for (id in lf[1:10]) {
 
   }
   
-  deck <- mclapply(seq_len(length(sl)), runsw, sl, bands, length.sw = 10,mc.cores = 4)
+  deck <- mclapply(seq_len(length(sl)), runsw, sl, bands, length.sw = length.sw, mc.cores = mc.cores)
   
   main_out[[basename(id)]] <- deck
 
 }
 
-save(main_out,file = 'main_out.RData',compress = TRUE)
+save(main_out,file = paste0('main_out_sw',length.sw,'_',sample_type,'.RData'),compress = TRUE)
