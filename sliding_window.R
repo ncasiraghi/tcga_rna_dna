@@ -8,7 +8,7 @@ setwd('/BCGLAB/2020_signatures/stats/')
 
 mc.cores <- 35
 
-length.sw <- 5
+length.sw <- 10
 
 sample_type <- 'DNA_tumor'
   
@@ -56,7 +56,7 @@ for (id in lf) {
     q.coord <- bands %>% filter(chrom == chr, arm == 'q')
     df$arm[which( df$pos >= q.coord$start & df$pos <= q.coord$end )] <- 'q'
     
-    stats_by_arm <- function(df,which.arm,n){
+    stats_by_arm <- function(df,chr,which.arm,n){
       
       adf <- df %>% filter(arm == which.arm)
       
@@ -79,8 +79,6 @@ for (id in lf) {
         out <- data.frame(chr=chr,
                           arm=unique(adf$arm),
                           bp = max(m$pos) - min(m$pos),
-                          median_af = median(m$af,na.rm = TRUE),
-                          median_cov = median(m$cov,na.rm = TRUE),
                           stringsAsFactors = FALSE)
         
         stats <- rbind(stats,out)
@@ -91,14 +89,24 @@ for (id in lf) {
       
     }
     
-    return(rbind(stats_by_arm(df,which.arm = 'p',n = length.sw),
-                 stats_by_arm(df,which.arm = 'q',n = length.sw)))
+    tmp <- rbind(stats_by_arm(df,chr = chr, which.arm = 'p',n = length.sw), 
+                 stats_by_arm(df,chr = chr, which.arm = 'q',n = length.sw))
+    
+    out <- tmp %>% 
+      filter(!is.na(chr)) %>% 
+      group_by(chr,arm) %>% 
+      summarise(n_windows=n(),
+                median_bp = median(bp,na.rm = T),
+                mean_bp = mean(bp,na.rm = T),
+                sd_bp = sd(bp,na.rm = T))
+    
+    return(out)
 
   }
   
   deck <- mclapply(seq_len(length(sl)), runsw, sl, bands, length.sw = length.sw, mc.cores = mc.cores)
   
-  main_out[[basename(id)]] <- deck
+  main_out[[basename(id)]] <- do.call(rbind,deck)
 
 }
 
