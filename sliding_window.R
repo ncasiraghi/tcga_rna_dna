@@ -2,11 +2,13 @@ library(data.table)
 library(tidyverse)
 library(parallel)
 
+options(dplyr.summarise.inform = FALSE)
+
 setwd('/BCGLAB/2020_signatures/stats/')
 
 # params
 
-mc.cores <- 35
+mc.cores <- 24
 
 length.sw <- 10
 
@@ -61,12 +63,16 @@ for (id in lf) {
       adf <- df %>% filter(arm == which.arm)
       
       if(nrow(adf)==0){
-        return(NA)
+        out <- data.frame(chr=chr,
+                          arm=which.arm,
+                          bp = NA,
+                          stringsAsFactors = FALSE)
+        return(out)
       }
       
       stop <- nrow(adf) - (n-1)
       
-      if(stop < 0){
+      if(stop <= 0){
         stop <- 1
         n <- nrow(adf)
       }
