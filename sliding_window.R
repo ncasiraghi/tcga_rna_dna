@@ -116,4 +116,12 @@ for (id in lf) {
 
 }
 
+clean <- function(df){
+  df$n_windows[which(is.na(df$median_bp))] <- NA
+  df$mean_bp[which(is.na(df$median_bp))] <- NA
+  return(df)
+}
+
+main_out <- lapply(main_out, clean)
+
 save(main_out,file = paste0('main_out_sw',length.sw,'_',sample_type,'.RData'),compress = TRUE)
