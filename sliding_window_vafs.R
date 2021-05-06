@@ -5,7 +5,13 @@ library(parallel)
 options(dplyr.summarise.inform = FALSE)
 options(scipen = 9999)
 
-wd <- '/BCGLAB/2020_signatures/stats/'
+args <- commandArgs(trailingOnly = TRUE)
+
+wd <- args[1]
+
+length.sw <- as.numeric(args[2])
+
+pos_step <- as.numeric(args[3])
 
 setwd(wd)
 
@@ -13,15 +19,9 @@ setwd(wd)
 
 mc.cores <- 24
 
-length.sw <- 10
-
-sample_type <- 'DNA_tumor'
-
-pos_step <- 500000
-  
 # outs
 
-outdir <- paste0('main_out_afs_sw',length.sw,'_',sample_type,'_Pstep_',format(pos_step,scientific = FALSE))
+outdir <- paste0('main_out_afs_sw_',length.sw,'_Pstep_',format(pos_step,scientific = FALSE))
 
 if(!file.exists(file.path(wd,outdir))){
   dir.create(file.path(wd, outdir), showWarnings = FALSE)
@@ -32,7 +32,7 @@ if(!file.exists(file.path(wd,outdir))){
 
 # pileup on snps
 
-lf <- list.files('/BCGLAB/2020_signatures/pileup/TCGA-BRCA',pattern = paste0('_',sample_type,'$'),full.names = TRUE)
+lf <- list.files('/BCGLAB/2020_signatures/pileup/TCGA-BRCA',pattern = '_DNA',full.names = TRUE)
 
 # cytobands
 
@@ -69,10 +69,12 @@ for (id in lf) {
   
   file <- list.files(id,full.names = TRUE,pattern = '\\.snps$')
   
-  snps <- fread(file,data.table = FALSE,nThread = mc.cores) 
+  snps <- fread(file,data.table = FALSE,nThread = mc.cores) %>% filter(af >= 0.1, af <= 0.9) 
+
+  tomi <- which(snps$af < 0.5)
+  snps$af[tomi] <- (1 - snps$af[tomi])
   
   sl <- snps %>% 
-    filter(af >= 0.2, af <= 0.8) %>% 
     group_by(chr) %>% 
     group_split()
   
