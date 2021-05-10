@@ -42,10 +42,12 @@ for (id in lf) {
   
   file <- list.files(id,full.names = TRUE,pattern = '\\.snps$')
   
-  snps <- fread(file,data.table = FALSE,nThread = 5) 
+  snps <- fread(file,data.table = FALSE,nThread = mc.cores) %>% filter(af >= 0.1, af <= 0.9) 
+  
+  tomi <- which(snps$af < 0.5)
+  snps$af[tomi] <- (1 - snps$af[tomi])
   
   sl <- snps %>% 
-    filter(af >= 0.2, af <= 0.8) %>% 
     group_by(chr) %>% 
     group_split()
   
