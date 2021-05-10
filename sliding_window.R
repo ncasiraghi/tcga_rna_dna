@@ -4,16 +4,20 @@ library(parallel)
 
 options(dplyr.summarise.inform = FALSE)
 
-setwd('/BCGLAB/2020_signatures/stats/')
-
 # params
+
+args <- commandArgs(trailingOnly = TRUE)
+
+wd <- args[1]
+
+length.sw <- as.numeric(args[2])
+
+sample_type <- as.character(args[3])
+
+setwd(wd)
 
 mc.cores <- 24
 
-length.sw <- 10
-
-sample_type <- 'DNA_tumor'
-  
 # pileup on snps
 
 lf <- list.files('/BCGLAB/2020_signatures/pileup/TCGA-BRCA',pattern = paste0('_',sample_type,'$'),full.names = TRUE)
