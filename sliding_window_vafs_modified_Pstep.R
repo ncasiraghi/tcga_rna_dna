@@ -71,6 +71,30 @@ for(j in seq_len(nrow(arm_borders))){
   
 }
 
+# genes of interest
+
+goi <- c(readLines('/BCGLAB/ncasiraghi/gene_panel/input/oncogenes.txt'),
+         readLines('/BCGLAB/ncasiraghi/gene_panel/input/cancer_genes.txt'),
+         readLines('/BCGLAB/ncasiraghi/gene_panel/input/tumor_suppressors.txt')) %>% 
+  unique() %>% 
+  sort()
+
+ensembl <- read.delim('/BCGLAB/ncasiraghi/gene_panel/input/mart_export_GRCh38p13.tsv',check.names = F,stringsAsFactors = F,col.names = c('ensg','start','end','chr','band','Hugo_Symbol'))
+
+gc <- ensembl %>% filter(Hugo_Symbol %in% goi)
+
+positions$cancer_genes <- 0
+
+for(i in seq_len(nrow(positions))){
+  
+  u <- gc[which( gc$start <= positions$pos[i] & gc$end >= positions$pos[i]),]
+  
+  if(nrow(u) > 0){
+    positions$cancer_genes[i] <- 1
+  }
+  
+}
+
 write.table(positions,file = file.path(wd,outdir,'positions.tsv'),col.names = TRUE,quote = FALSE,row.names = FALSE,sep = '\t')
 
 # run sliding window
