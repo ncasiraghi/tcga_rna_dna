@@ -15,9 +15,9 @@ length.sw <- as.numeric(args[2])
 
 pos_step <- as.numeric(args[3])
 
-setwd(wd)
+samples.in.parallel <- as.numeric(args[4])
 
-samples.in.parallel <- 25
+setwd(wd)
 
 # outs
 
@@ -60,9 +60,11 @@ positions <- c()
 
 for(j in seq_len(nrow(arm_borders))){
   
+  pos <- c(seq(from=arm_borders$start[j],arm_borders$end[j],by = pos_step), arm_borders$end[j])
+  
   x <- data.frame(chrom=arm_borders$chr[j],
                   arm=arm_borders$arm[j],
-                  pos=seq(from=arm_borders$start[j],arm_borders$end[j],by = pos_step),
+                  pos=unique(pos),
                   stringsAsFactors = FALSE)
   
   positions <- rbind(positions,x)
