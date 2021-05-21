@@ -19,17 +19,25 @@ get_afs <- function(px, stats){
   
   compute_wafs <- function(j,x,px){
     
-    dst <- abs(as.numeric(unlist(strsplit(x$snp_pos[j],split = ';'))) - px)
+    dst <- abs(as.numeric(unlist(strsplit(x$snp_pos[j],split = ';'))) - px) + 1
     
     waf <- weighted.mean(x = as.numeric(unlist(strsplit(x$snp_af[j],split = ';'))), w = 1/dst)
     
     return(waf)
   }
   
-  wout <- unlist(lapply(seq_len(nrow(x)),compute_wafs,x=x,px=px))
-  
-  return( median(wout,na.rm = TRUE) )
-  
+  if(nrow(x) > 0){
+    
+    wout <- unlist(lapply(seq_len(nrow(x)),compute_wafs,x=x,px=px))
+    
+    return( median(wout,na.rm = TRUE) )
+    
+  } else {
+    
+    return( NA )
+    
+  }
+
 }
 
 stats_by_arm <- function(df,chr,which.arm,wnd,positions){
