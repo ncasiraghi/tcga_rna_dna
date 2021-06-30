@@ -9,13 +9,11 @@ source('/BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData_func
 
 args <- commandArgs(trailingOnly = TRUE)
 
-wd <- args[1]
+configure_file <- args[1]
 
-length.sw <- as.numeric(args[2])
+source(configure_file)
 
-pos_step <- as.numeric(args[3])
-
-samples.in.parallel <- as.numeric(args[4])
+# set working dir
 
 setwd(wd)
 
@@ -32,7 +30,7 @@ if(!file.exists(file.path(wd,outdir))){
 
 # pileup on snps
 
-lf <- list.files('/BCGLAB/2020_signatures/pileup/TCGA-BRCA',pattern = '_DNA',full.names = TRUE)
+lf <- list.files(data_folder,pattern = paste0('_',data_type),full.names = TRUE)
 
 write(x = basename(lf),file = file.path(wd,outdir,'samples.txt'),ncolumns = 1)
 
@@ -60,7 +58,7 @@ positions <- c()
 
 for(j in seq_len(nrow(arm_borders))){
   
-  pos <- c(seq(from=arm_borders$start[j],arm_borders$end[j],by = pos_step), arm_borders$end[j])
+  pos <- c(seq(from=arm_borders$start[j],arm_borders$end[j],by = pos_step * 1e6), arm_borders$end[j])
   
   x <- data.frame(chrom=arm_borders$chr[j],
                   arm=arm_borders$arm[j],
@@ -106,14 +104,15 @@ write.table(positions,file = file.path(wd,outdir,'positions.tsv'),col.names = TR
 
 # run sliding window
 
-getMatrix <- function(i,lf,bands,length.sw,positions){
+getMatrix <- function(i,lf,bands,length.sw,positions,aggregate_as){
   
   id <- lf[i]
   
   file <- list.files(id,full.names = TRUE,pattern = '\\.snps$')
   
   snps <- fread(file,data.table = FALSE,verbose = FALSE,stringsAsFactors = FALSE) %>% 
-    filter(af >= 0.1, af <= 0.9) %>% 
+    filter(af >= min_vaf, af <= max_vaf) %>% 
+    filter(cov >= min_cov) %>% 
     filter(!chr %in% c('chrY','chrM'))
   
   tomi <- which(snps$af < 0.5)
@@ -123,13 +122,13 @@ getMatrix <- function(i,lf,bands,length.sw,positions){
     group_by(chr) %>% 
     group_split()
   
-  deck <- lapply(seq_len(length(sl)), runsw, sl, bands, length.sw = length.sw, positions = positions)
+  deck <- lapply(seq_len(length(sl)), runsw, sl, bands, length.sw = length.sw, positions = positions, aggregate_as = aggregate_as)
   
   return(as.numeric(unlist(deck)))
   
 }
 
-listmat <- mclapply(seq_len(length(lf)),getMatrix,lf=lf,bands=bands,length.sw=length.sw,positions=positions,mc.cores = samples.in.parallel)
+listmat <- mclapply(seq_len(length(lf)),getMatrix,lf=lf,bands=bands,length.sw=length.sw,positions=positions,aggregate_as = aggregate_as,mc.cores = samples.in.parallel)
 
 mat <- do.call(rbind,listmat)
 

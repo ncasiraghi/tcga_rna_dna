@@ -12,7 +12,7 @@ compute_stats <- function(indx, chr, adf, tab){
   return(out)
 }
 
-get_afs <- function(px, stats){
+get_afs <- function(px, stats, aggregate_as){
   
   x <- stats %>% 
     filter(wnd_start <= px & wnd_end >= px) 
@@ -30,7 +30,13 @@ get_afs <- function(px, stats){
     
     wout <- unlist(lapply(seq_len(nrow(x)),compute_wafs,x=x,px=px))
     
-    return( median(wout,na.rm = TRUE) )
+    if(aggregate_as == 'median'){
+      return( median(wout,na.rm = TRUE) )
+    }
+    
+    if(aggregate_as == 'mean'){
+      return( mean(wout,na.rm = TRUE) )
+    }
     
   } else {
     
@@ -40,7 +46,7 @@ get_afs <- function(px, stats){
 
 }
 
-stats_by_arm <- function(df,chr,which.arm,wnd,positions){
+stats_by_arm <- function(df,chr,which.arm,wnd,positions,aggregate_as){
   
   adf <- df %>% filter(arm == which.arm)
   
@@ -72,7 +78,7 @@ stats_by_arm <- function(df,chr,which.arm,wnd,positions){
   
   pos.arm <- as.numeric(positions %>% filter(arm == which.arm, chrom == chr ) %>% pull(pos))
   
-  afs <- lapply(pos.arm, get_afs, stats = stats)
+  afs <- lapply(pos.arm, get_afs, stats = stats, aggregate_as = aggregate_as)
   afs <- as.numeric(unlist(afs))
   
   return(afs)
@@ -92,8 +98,8 @@ runsw <- function(i, sl, bands, length.sw, positions){
   q.coord <- bands %>% filter(chrom == chr, arm == 'q')
   df$arm[which( df$pos >= q.coord$start & df$pos <= q.coord$end )] <- 'q'
   
-  out <- c(stats_by_arm(df,chr = chr, which.arm = 'p',wnd = length.sw, positions = positions),
-           stats_by_arm(df,chr = chr, which.arm = 'q',wnd = length.sw, positions = positions))
+  out <- c(stats_by_arm(df,chr = chr, which.arm = 'p',wnd = length.sw, positions = positions, aggregate_as = aggregate_as),
+           stats_by_arm(df,chr = chr, which.arm = 'q',wnd = length.sw, positions = positions, aggregate_as = aggregate_as))
   
   return(out)
   
