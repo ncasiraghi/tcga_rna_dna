@@ -66,9 +66,17 @@ setwd(outdir)
 
 # pileup on snps
 
-lf <- list.files(data_folder,pattern = paste0('_',data_type),full.names = TRUE)[1:10]
+snps_list <- list.files(data_folder,pattern = '\\.snps$',recursive = TRUE,full.names = TRUE)
 
-write(x = basename(lf),file = file.path(outdir,'samples.txt'),ncolumns = 1)
+datatab_samples <- data.frame(file.snps = snps_list,
+                              sample.id = basename(dirname(snps_list)),
+                              stringsAsFactors = FALSE)
+
+datatab_samples <- filter(datatab_samples,grepl(pattern = paste0('_',data_type,'_'),sample.id))
+
+write.table(datatab_samples,file = file.path(outdir,'samples.tsv'),sep = '\t',col.names = TRUE,row.names = FALSE,quote = FALSE)
+
+lf <- unique(datatab_samples$file.snps)
 
 # cytobands
 
@@ -142,9 +150,7 @@ write.table(positions,file = file.path(outdir,'positions.tsv'),col.names = TRUE,
 
 getMatrix <- function(i,lf,bands,length.sw,positions,aggregate_as){
   
-  id <- lf[i]
-  
-  file <- list.files(id,full.names = TRUE,pattern = '\\.snps$')
+  file <- lf[i]
   
   snps <- fread(file,data.table = FALSE,verbose = FALSE,stringsAsFactors = FALSE) %>% 
     filter(af >= min_vaf, af <= max_vaf) %>% 
