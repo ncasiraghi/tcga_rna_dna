@@ -8,6 +8,8 @@ pos_step <- 0.75
 
 samples.in.parallel <- 50
 
+exclude_chromosomes <- c('chrY','chrM')
+
 data_folder <- '/BCGLAB/2020_signatures/pileup/TCGA-BRCA'
 
 data_type <- 'DNA'

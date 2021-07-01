@@ -113,7 +113,7 @@ getMatrix <- function(i,lf,bands,length.sw,positions,aggregate_as){
   snps <- fread(file,data.table = FALSE,verbose = FALSE,stringsAsFactors = FALSE) %>% 
     filter(af >= min_vaf, af <= max_vaf) %>% 
     filter(cov >= min_cov) %>% 
-    filter(!chr %in% c('chrY','chrM'))
+    filter(!chr %in% exclude_chromosomes)
   
   tomi <- which(snps$af < 0.5)
   snps$af[tomi] <- (1 - snps$af[tomi])
