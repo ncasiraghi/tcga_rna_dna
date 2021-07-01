@@ -85,7 +85,7 @@ stats_by_arm <- function(df,chr,which.arm,wnd,positions,aggregate_as){
   
 }
 
-runsw <- function(i, sl, bands, length.sw, positions){
+runsw <- function(i, sl, bands, length.sw, positions, aggregate_as){
   
   df <- sl[[i]]
   df$arm <- NA
