@@ -9,30 +9,66 @@ source('/BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData_func
 
 args <- commandArgs(trailingOnly = TRUE)
 
-configure_file <- args[1]
+data_folder <- args[1]
 
-source(configure_file)
+data_type <- args[2]
+
+aggregate_as  <-  args[3]
+
+min_vaf <- as.numeric(args[4])
+
+max_vaf <- as.numeric(args[5])
+
+min_cov <- as.numeric(args[6])
+
+length.sw <- as.numeric(args[7])
+
+pos_step <- as.numeric(args[8])
+
+samples.in.parallel <- as.numeric(args[9])
+
+wd <- args[10]
+
+exclude_chromosomes <- c('chrM')
 
 # set working dir
 
-setwd(wd)
-
 # outs
 
-outdir <- paste0('main_out_afs_sw_',length.sw,'_Pstep_',format(pos_step,scientific = FALSE))
+outdir_level_1 <- file.path(wd,paste('minvaf',min_vaf,'maxvaf',max_vaf,'mincov',min_cov,sep = '_'))
 
-if(!file.exists(file.path(wd,outdir))){
-  dir.create(file.path(wd, outdir), showWarnings = FALSE)
-} else{
-  unlink(file.path(wd,outdir),recursive = TRUE)
-  dir.create(file.path(wd, outdir), showWarnings = FALSE)
+if(!file.exists(file.path(outdir_level_1))){
+  dir.create(file.path(outdir_level_1), showWarnings = FALSE)
 }
+
+outdir_level_2 <- file.path(outdir_level_1,paste('aggregate',aggregate_as,sep = '_'))
+
+if(!file.exists(file.path(outdir_level_2))){
+  dir.create(file.path(outdir_level_2), showWarnings = FALSE)
+}
+
+outdir_level_3 <- file.path(outdir_level_2,paste('sw',length.sw,sep = '_'))
+
+if(!file.exists(file.path(outdir_level_3))){
+  dir.create(file.path(outdir_level_3), showWarnings = FALSE)
+}
+
+outdir <- file.path(outdir_level_3,paste('pstep',pos_step,sep = '_'))
+
+if(!file.exists(file.path(outdir))){
+  dir.create(file.path(outdir), showWarnings = FALSE)
+} else{
+  unlink(file.path(outdir),recursive = TRUE)
+  dir.create(file.path(outdir), showWarnings = FALSE)
+}
+
+setwd(outdir)
 
 # pileup on snps
 
-lf <- list.files(data_folder,pattern = paste0('_',data_type),full.names = TRUE)
+lf <- list.files(data_folder,pattern = paste0('_',data_type),full.names = TRUE)[1:10]
 
-write(x = basename(lf),file = file.path(wd,outdir,'samples.txt'),ncolumns = 1)
+write(x = basename(lf),file = file.path(outdir,'samples.txt'),ncolumns = 1)
 
 # cytobands
 
@@ -100,7 +136,7 @@ for(idx in seq_len(nrow(positions))){
   
 }
 
-write.table(positions,file = file.path(wd,outdir,'positions.tsv'),col.names = TRUE,quote = FALSE,row.names = FALSE,sep = '\t')
+write.table(positions,file = file.path(outdir,'positions.tsv'),col.names = TRUE,quote = FALSE,row.names = FALSE,sep = '\t')
 
 # run sliding window
 
@@ -132,4 +168,4 @@ listmat <- mclapply(seq_len(length(lf)),getMatrix,lf=lf,bands=bands,length.sw=le
 
 mat <- do.call(rbind,listmat)
 
-write.table(x = mat,file = file.path(wd,outdir,'data.tsv'),sep = '\t',quote = FALSE,col.names = FALSE,row.names = FALSE)
+write.table(x = mat,file = file.path(outdir,'data.tsv'),sep = '\t',quote = FALSE,col.names = FALSE,row.names = FALSE)
