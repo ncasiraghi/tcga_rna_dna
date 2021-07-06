@@ -19,13 +19,12 @@ df <- expand.grid(rscript,pileup,type,aggregate_as,min_vaf,max_vaf,min_cov,sw,ps
 
 colnames(df) <- c('rscript','pileup','type','aggregate_as','min_vaf','max_vaf','min_cov','sw','pstep','n')
 
+list.files('/BCGLAB/2020_signatures/input_data',pattern = '^data.tsv$',recursive = TRUE,full.names = TRUE)
+
 m <- df %>% 
-  filter(!grepl('-BRCA',pileup)) %>% 
-  filter(!grepl('-OV',pileup)) %>% 
   filter(type == 'DNA') %>% 
   filter(pstep == 0.75) %>% 
-  filter(aggregate_as == 'mean') %>%
-  filter(sw == 50) %>% 
+  filter(aggregate_as == 'median') %>%
   arrange(pileup)
 
 m$out <- file.path('/BCGLAB/2020_signatures/input_data',basename(m$pileup))
