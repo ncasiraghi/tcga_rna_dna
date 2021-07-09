@@ -3,7 +3,7 @@ library(tidyverse)
 setwd('/BCGLAB/2020_signatures/stats/annotations/TCGA-BRCA/')
 
 # data from TCGA manifest
-original_manifest <- read.delim('/BCGLAB/2020_signatures/manifest.txt',stringsAsFactors = F)
+original_manifest <- read.delim('/BCGLAB/2020_signatures/manifest.txt',stringsAsFactors = F,check.names = TRUE)
 
 manifest <- original_manifest %>% 
   rename(TCGA_barcode = ID.x, sample = patientType, partecipant = patient, filename = file) %>% 
@@ -104,6 +104,8 @@ to.remove <- gsub(to.remove,pattern = '_DNA_tumor|_DNA_normal',replacement = '')
 manifest$batch_approved <- 1
 manifest$batch_approved[which(manifest$sample %in% to.remove)] <- 0
 
+write.table(manifest,file = 'BRCA_samples_info_file.txt',quote = F,row.names = F,col.names = T,sep = '\t')
+
 manifest %>%
   filter(bcglab == 1 & batch_approved == 1) %>%
   group_by(type) %>% 
@@ -133,11 +135,11 @@ selection <- cnt %>%
   filter(mean_tumor_purity > 0.85, sd_tumor_purity < 0.05)
 
 sel <- manifest %>%
-  filter(bcglab == 1 & batch_approved == 1 & type == 1) %>% 
+  filter(bcglab == 1 & batch_approved == 1 & !type %in% c(10,11)) %>% 
   filter(filename %in% selection$filename)
 
 not_sel <- manifest %>%
-  filter(bcglab == 1 & batch_approved == 1 & type == 1) %>% 
+  filter(bcglab == 1 & batch_approved == 1 & !type %in% c(10,11)) %>% 
   filter(!filename %in% selection$filename)
 
 compute_fisher <- function(sel,not_sel,brca_subtype){
@@ -169,20 +171,53 @@ manifest$note <- NA
 # selected for dilution
 
 manifest$note[which(manifest$filename %in% sel$filename)] <- 'dilution'
-keep <- manifest %>% filter(note == 'dilution') %>% pull(partecipant)
-manifest$note[which(manifest$partecipant %in% keep & manifest$type %in% c(10,11))] <- 'dilution' 
+
+part <- manifest %>% filter(note == 'dilution') %>% pull(partecipant)
+
+manifest$note[which(manifest$partecipant %in% part & manifest$type %in% c(10,11))] <- 'dilution'
 
 # missing tumor purity
-manifest$note[which(is.na(manifest$TCGA_purity))] <- 'missing_tumor_purity'
-keep <- manifest %>% filter(note == 'missing_tumor_purity') %>% pull(partecipant)
-manifest$note[which(manifest$partecipant %in% keep & manifest$type %in% c(10,11))] <- 'missing_tumor_purity' 
+
+manifest$note[which(is.na(manifest$TCGA_purity) & !manifest$type %in% c(10,11))] <- 'missing_tumor_purity'
+
+part <- manifest %>% filter(note == 'missing_tumor_purity') %>% pull(partecipant)
+
+manifest$note[which(manifest$partecipant %in% part & manifest$type %in% c(10,11))] <- 'missing_tumor_purity'
 
 # low tumor purity
-manifest$note[which(manifest$TCGA_purity < 0.25)] <- 'low_tumor_purity'
-keep <- manifest %>% filter(note == 'low_tumor_purity') %>% pull(partecipant)
-manifest$note[which(manifest$partecipant %in% keep & manifest$type %in% c(10,11))] <- 'low_tumor_purity' 
 
-manifest$sample_bcglab <- paste0(manifest$sample,'_DNA_tumor')
+manifest$note[which(manifest$TCGA_purity < 0.25 & !manifest$type %in% c(10,11))] <- 'low_tumor_purity'
+
+part <- manifest %>% filter(note == 'low_tumor_purity') %>% pull(partecipant)
+
+manifest$note[which(manifest$partecipant %in% part & manifest$type %in% c(10,11))] <- 'low_tumor_purity'
+
+# add name as in bcglab
+
+in.bcglab <- list.files(path = file.path('/BCGLAB/2020_signatures/pileup/TCGA-BRCA/'),pattern = '_DNA_',full.names = FALSE)
+
+manifest$sample_bcglab <- NA
+
+for(id in seq_len(nrow(manifest))){
+  
+  dd <- grep(in.bcglab, pattern = manifest$sample[id],value = TRUE) 
+  
+  if(length(dd) > 0){
+    
+    manifest$sample_bcglab[id] <- dd
+    
+  }
+  
+}
+
 manifest <- relocate(manifest,sample_bcglab,.after = sample)
+
+# counter
+
+manifest %>% 
+  filter(batch_approved == 1) %>% 
+  group_by(type,note) %>% 
+  summarise(count = n()) %>% 
+  arrange(note,type)
 
 write.table(manifest,file = 'BRCA_samples_info_file.txt',quote = F,row.names = F,col.names = T,sep = '\t')
