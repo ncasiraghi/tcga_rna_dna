@@ -29,7 +29,7 @@ pos_step <- as.numeric(args[9])
 
 samples.in.parallel <- as.numeric(args[10])
 
-exclude_chromosomes <- c('chrM')
+custom_borders <- as.logical(args[11])
 
 # import and filter sif
 
@@ -67,7 +67,17 @@ if(!file.exists(file.path(outdir_level_3))){
   dir.create(file.path(outdir_level_3), showWarnings = FALSE)
 }
 
-outdir <- file.path(outdir_level_3,paste('pstep',pos_step,sep = '_'))
+outdir_level_4 <- file.path(outdir_level_3,paste('pstep',pos_step,sep = '_'))
+
+if(!file.exists(file.path(outdir_level_4))){
+  dir.create(file.path(outdir_level_4), showWarnings = FALSE)
+}
+
+if(custom_borders){
+  outdir <- file.path(outdir_level_4,paste('custom_borders'))
+}else{
+  outdir <- file.path(outdir_level_4,paste('default_borders'))
+}
 
 if(!file.exists(file.path(outdir))){
   dir.create(file.path(outdir), showWarnings = FALSE)
@@ -78,7 +88,7 @@ if(!file.exists(file.path(outdir))){
 
 setwd(outdir)
 
-message(outdir)
+cat(paste("[",Sys.time(),"]\tOut folder:",outdir),"\n")
 
 # pileup on snps
 
@@ -109,28 +119,40 @@ bands <- bands %>%
 
 # Define positions to aggregate data
 
-listmat <- mclapply(seq_len(length(lf)),getArmsMargin,lf=lf,bands=bands,min_vaf=min_vaf,max_vaf=max_vaf,min_cov=min_cov,mc.preschedule = TRUE,mc.cores = samples.in.parallel)
-
-snps_borders <- do.call(rbind,listmat)
-
-write.table(snps_borders,file = file.path(wd,'snps_borders.tsv'),col.names = TRUE,row.names = FALSE,sep = '\t',quote = FALSE)
-
-ab_first <- snps_borders %>%
-  filter(flag == 'first') %>% 
-  group_by(chr, arm) %>% 
-  slice(which.max(pos))
-
-ab_last <- snps_borders %>%
-  filter(flag == 'last') %>% 
-  group_by(chr, arm) %>% 
-  slice(which.min(pos))
-
-arm_borders <- rbind(ab_first,ab_last) %>% 
-  arrange(chr,arm,pos) %>% 
-  group_by(chr,arm) %>% 
-  summarise(start = min(pos), end = max(pos))
-
-write.table(arm_borders,file = file.path(wd,'arm_borders.tsv'),sep = '\t',row.names = F,quote = F,col.names = TRUE)
+if(custom_borders){
+  
+  cat(paste("[",Sys.time(),"]\tComputing CUSTOM arms borders based on available het SNPs"),"\n")
+  
+  listmat <- mclapply(seq_len(length(lf)),getArmsMargin,lf=lf,bands=bands,min_vaf=min_vaf,max_vaf=max_vaf,min_cov=min_cov,mc.preschedule = TRUE,mc.cores = samples.in.parallel)
+  
+  snps_borders <- do.call(rbind,listmat)
+  
+  write.table(snps_borders,file = file.path(outdir,'snps_borders.tsv'),col.names = TRUE,row.names = FALSE,sep = '\t',quote = FALSE)
+  
+  ab_first <- snps_borders %>%
+    filter(flag == 'first') %>% 
+    group_by(chr, arm) %>% 
+    slice(which.max(pos))
+  
+  ab_last <- snps_borders %>%
+    filter(flag == 'last') %>% 
+    group_by(chr, arm) %>% 
+    slice(which.min(pos))
+  
+  arm_borders <- rbind(ab_first,ab_last) %>% 
+    arrange(chr,arm,pos) %>% 
+    group_by(chr,arm) %>% 
+    summarise(start = min(pos), end = max(pos))
+  
+  write.table(arm_borders,file = file.path(outdir,'arm_borders.tsv'),sep = '\t',row.names = F,quote = F,col.names = TRUE)
+  
+}else{
+  
+  cat(paste("[",Sys.time(),"]\tUsing DEFAULT arms borders based on genomic coordinates"),"\n")
+  
+  arm_borders <- bands %>% rename(chr = chrom)
+  
+}
 
 positions <- c()
 
