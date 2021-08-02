@@ -19,9 +19,10 @@ min_cov <- 10
 sw <- c(25,50)
 pstep <- 0.75
 cores <- 50
+custom_borders <- c(TRUE,FALSE)
 
-df <- expand.grid(rscript,sif.file,omic,dataset,aggregate_as,min_vaf,max_vaf,min_cov,sw,pstep,cores,stringsAsFactors = FALSE)
+df <- expand.grid(rscript,sif.file,omic,dataset,aggregate_as,min_vaf,max_vaf,min_cov,sw,pstep,custom_borders,cores,stringsAsFactors = FALSE)
 
-colnames(df) <- c('rscript','sif.file','omic','dataset','aggregate_as','min_vaf','max_vaf','min_cov','sw','pstep','cores')
+colnames(df) <- c('rscript','sif.file','omic','dataset','aggregate_as','min_vaf','max_vaf','min_cov','sw','pstep','custom_borders','cores')
 
 write.table(df, file = 'auto_computeData.sh',quote = FALSE,sep = ' ',col.names = FALSE,row.names = FALSE)
