@@ -104,3 +104,57 @@ runsw <- function(i, sl, bands, length.sw, positions, aggregate_as){
   return(out)
   
 }
+
+SnpSelect <- function(i, sl, bands){
+  
+  df <- sl[[i]]
+  df$arm <- NA
+  
+  chr <- unique(df$chr)
+  
+  p.coord <- bands %>% filter(chrom == chr, arm == 'p')
+  df$arm[which( df$pos >= p.coord$start & df$pos <= p.coord$end )] <- 'p'
+  
+  q.coord <- bands %>% filter(chrom == chr, arm == 'q')
+  df$arm[which( df$pos >= q.coord$start & df$pos <= q.coord$end )] <- 'q'
+  
+  out <- df %>%
+    group_by(arm) %>%
+    slice(which.min(pos),which.max(pos)) %>% 
+    mutate(check = min(pos))
+  
+  out$flag <- 'last'
+  out$flag[which(out$pos == out$check)] <- 'first'
+  
+  return(out %>% select(-check))
+  
+}
+
+getArmsMargin <- function(i,lf,bands,min_vaf,max_vaf,min_cov){
+  
+  file <- lf[i]
+  
+  snps <- fread(file,data.table = FALSE,nThread = 5,verbose = FALSE) %>% 
+    filter(af >= min_vaf, af <= max_vaf, cov >= min_cov)
+  
+  if(str_detect(snps$chr[1],'chr',negate = TRUE)){
+    snps <- snps %>% 
+      mutate(chr = paste0('chr',chr)) %>% 
+      filter(chr %in% paste0('chr',1:22))
+  }else{
+    snps <- snps %>% 
+      filter(chr %in% paste0('chr',1:22))
+  }
+  
+  tomi <- which(snps$af < 0.5)
+  snps$af[tomi] <- (1 - snps$af[tomi])
+  
+  sl <- snps %>% 
+    group_by(chr) %>% 
+    group_split()
+  
+  deck <- do.call(rbind,lapply(seq_len(length(sl)), SnpSelect, sl, bands))
+  
+  return(deck)
+  
+}
