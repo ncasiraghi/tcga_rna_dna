@@ -45,15 +45,21 @@ SnpSelect <- function(i, sl, bands){
   
 }
 
-getArmsMargin <- function(i,lf){
+getArmsMargin <- function(i,lf,bands,min_vaf,max_vaf,min_cov){
   
-  id <- lf[i]
+  file <- lf[i]
   
-  file <- list.files(id,full.names = TRUE,pattern = '\\.snps$')
+  snps <- fread(file,data.table = FALSE,nThread = 5,verbose = FALSE) %>% 
+    filter(af >= min_vaf, af <= max_vaf, cov >= min_cov)
   
-  snps <- fread(file,data.table = FALSE,nThread = 2,verbose = FALSE) %>% 
-    filter(af >= 0.1, af <= 0.9) %>% 
-    filter(!chr %in% c('chrY','chrM'))
+  if(str_detect(snps$chr[1],'chr',negate = TRUE)){
+    snps <- snps %>% 
+      mutate(chr = paste0('chr',chr)) %>% 
+      filter(chr %in% paste0('chr',1:22))
+  }else{
+    snps <- snps %>% 
+      filter(chr %in% paste0('chr',1:22))
+  }
   
   tomi <- which(snps$af < 0.5)
   snps$af[tomi] <- (1 - snps$af[tomi])
@@ -68,7 +74,7 @@ getArmsMargin <- function(i,lf){
   
 }
 
-listmat <- mclapply(seq_len(length(lf)),getArmsMargin,lf=lf,mc.preschedule = TRUE,mc.cores = samples.in.parallel)
+listmat <- mclapply(seq_len(length(lf)),getArmsMargin,lf=lf,bands=bands,min_vaf=min_vaf,max_vaf=max_vaf,min_cov=min_cov,mc.preschedule = TRUE,mc.cores = samples.in.parallel)
 
 snps_borders <- do.call(rbind,listmat)
 
