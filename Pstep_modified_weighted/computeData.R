@@ -27,9 +27,9 @@ length.sw <- as.numeric(args[8])
 
 pos_step <- as.numeric(args[9])
 
-samples.in.parallel <- as.numeric(args[10])
+custom_borders <- as.logical(args[10])
 
-custom_borders <- as.logical(args[11])
+samples.in.parallel <- as.numeric(args[11])
 
 # import and filter sif
 
@@ -204,6 +204,10 @@ write.table(positions,file = file.path(outdir,'positions.tsv'),col.names = TRUE,
 
 # run sliding window
 
+cat(paste("[",Sys.time(),"]\tComputing data matrix:"),"\n")
+cat(paste("[",Sys.time(),"]\tn. samples:\t",length(lf)),"\n")
+cat(paste("[",Sys.time(),"]\tn. positions:\t",nrow(positions)),"\n")
+
 getMatrix <- function(i,lf,bands,min_vaf,max_vaf,min_cov,length.sw,positions,aggregate_as){
   
   file <- lf[i]
@@ -239,3 +243,4 @@ mat <- do.call(rbind,listmat)
 
 write.table(x = mat,file = file.path(outdir,'data.tsv'),sep = '\t',quote = FALSE,col.names = FALSE,row.names = FALSE)
 
+cat(paste("[",Sys.time(),"]\t[ DONE ]"),"\n")
