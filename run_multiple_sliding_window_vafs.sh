@@ -1,0 +1,10 @@
+Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R /BCGLAB/2020_signatures/stats/modified_Pstep_weighted_agg_mean 50 250000 50
+Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R /BCGLAB/2020_signatures/stats/modified_Pstep_weighted_agg_mean 50 500000 50
+Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R /BCGLAB/2020_signatures/stats/modified_Pstep_weighted_agg_mean 50 750000 50
+Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R /BCGLAB/2020_signatures/stats/modified_Pstep_weighted_agg_mean 50 1000000 50
+Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R /BCGLAB/2020_signatures/stats/modified_Pstep_weighted_agg_mean 50 5000000 50
+Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R /BCGLAB/2020_signatures/stats/modified_Pstep_weighted_agg_mean 100 250000 50
+Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R /BCGLAB/2020_signatures/stats/modified_Pstep_weighted_agg_mean 100 500000 50
+Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R /BCGLAB/2020_signatures/stats/modified_Pstep_weighted_agg_mean 100 750000 50
+Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R /BCGLAB/2020_signatures/stats/modified_Pstep_weighted_agg_mean 100 1000000 50
+Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R /BCGLAB/2020_signatures/stats/modified_Pstep_weighted_agg_mean 100 5000000 50

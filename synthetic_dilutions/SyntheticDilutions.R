@@ -2,8 +2,6 @@ library(parallel)
 library(data.table)
 library(tidyverse)
 
-# sif <- fread("/BCGLAB/2020_signatures/scripts/synthetic_dilutions/sif_synthdils.tsv", header = T, stringsAsFactors = F)
-
 # TCGA-BRCA selected samples
 
 setwd('/BCGLAB/2020_signatures/synthetic_dilutions')
@@ -49,9 +47,7 @@ for(i in seq_len(nrow(df))){
 }
 
 sif <- df %>% 
-  arrange(desc(germline.mean.coverage),plasma.mean.coverage,TC) %>% 
-  filter(!patient %in% c('TCGA-A2-A04R','TCGA-B6-A0RG')) %>% 
-  slice_head(n = 10)
+  arrange(desc(germline.mean.coverage),plasma.mean.coverage,TC)
 
 write.table(sif,file = 'input_sif_synthetic_dilutions.tsv',col.names = TRUE,row.names = FALSE,quote = FALSE,sep = '\t')
 
@@ -126,12 +122,11 @@ if(TRUE){
   }
 }
 
-cores = 2
+cores = 20
 
 tc.in <- sif$TC
-# TC <- seq(0.01,0.2,0.01)
-TC <- c(0.10,0.01,0.05)
-
+# TC <- seq(0.01,0.2,0.02)
+TC <- c(0.10,0.05,0.01)
 
 for(tc in TC){
   # Compute subsampling percentage for plasma and germline to obtain 

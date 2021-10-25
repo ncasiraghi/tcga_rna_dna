@@ -52,9 +52,8 @@ mt$Sample <- gsub(mt$Sample,pattern = '_Case_HALO.md|_CASE_HALO.md|_Case_HALO.md
 mt$Sample <- gsub(mt$Sample,pattern = '_Case_SS.sorted.dedup.realigned.recalibrated.md.filt|_Case.bwa.sorted.dedup.realigned.recalibrated.md.filt|.bwa.sorted.dedup.realigned.recalibrated.md.filt',replacement = '')
 mt$Sample <- gsub(mt$Sample,pattern = '_Case.md.filt|_Case_Halo.md.filt',replacement = '')
 
-head(mt)
-
-head(m)
+unique(mt$Sample)
+unique(tab$Sample)
 
 mt <- left_join(x = mt, y = tab, by = 'Sample')
 

@@ -10,13 +10,13 @@ sif <- read.delim(file = sif.file,header = TRUE,stringsAsFactors = FALSE)
 
 cat(unique(sif$data.source),sep = '\n')
 
-dataset <- 'WES-Plasma_TISSUES'
+dataset <- grep(unique(sif$data.source),pattern = 'WES-Plasma',value = TRUE)
 omic <- 'DNA'
 aggregate_as <- 'mean'
-min_vaf <- 0.1
-max_vaf <- 0.9
+min_vaf <- 0.3
+max_vaf <- 0.7
 min_cov <- 10
-sw <- c(25,50)
+sw <- 50
 pstep <- 0.75
 cores <- 50
 custom_borders <- c(TRUE,FALSE)
