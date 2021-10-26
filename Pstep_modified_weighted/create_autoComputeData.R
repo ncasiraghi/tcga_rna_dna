@@ -15,13 +15,13 @@ cat(unique(sif$data.source),sep = '\n')
 dataset <- unique(sif$data.source)
 omic <- 'DNA'
 aggregate_as <- 'mean'
-min_vaf <- 0.3
-max_vaf <- 0.7
+min_vaf <- 0.1
+max_vaf <- 0.9
 min_cov <- 10
 sw <- 50
 pstep <- 0.75
 cores <- 50
-custom_borders <- c(TRUE,FALSE)
+custom_borders <- c(FALSE)
 
 df <- expand.grid(rscript,sif.file,omic,dataset,aggregate_as,min_vaf,max_vaf,min_cov,sw,pstep,custom_borders,cores,stringsAsFactors = FALSE)
 
