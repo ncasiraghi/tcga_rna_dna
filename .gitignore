@@ -1,5 +1,11 @@
+# Config files or similar
+Pstep_modified_weighted/auto_computeData.sh
+Pstep_modified_weighted/create_autoComputeData.R
+
+# Hidden files 
 ._*
 .DS_Store
+
 # History files
 .Rhistory
 .Rapp.history
