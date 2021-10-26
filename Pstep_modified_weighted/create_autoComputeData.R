@@ -4,7 +4,7 @@ setwd('/BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted')
 
 rscript <- 'Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R'
 
-sif.file <- '/BCGLAB/ncasiraghi/tcga_rna_dna/data/datasetSNPs.tsv'
+sif.file <- '/BCGLAB/ncasiraghi/tcga_rna_dna/data/full_dataset.tsv'
 
 sif <- read.delim(file = sif.file,header = TRUE,stringsAsFactors = FALSE)
 
