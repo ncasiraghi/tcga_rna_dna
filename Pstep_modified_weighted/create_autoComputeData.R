@@ -4,13 +4,15 @@ setwd('/BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted')
 
 rscript <- 'Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R'
 
-sif.file <- '/BCGLAB/ncasiraghi/tcga_rna_dna/data/full_dataset.tsv'
+# sif.file <- '/BCGLAB/ncasiraghi/tcga_rna_dna/data/full_dataset.tsv'
+sif.file <- '/BCGLAB/ncasiraghi/tcga_rna_dna/data/insilico_dataset.tsv'
 
 sif <- read.delim(file = sif.file,header = TRUE,stringsAsFactors = FALSE)
 
 cat(unique(sif$data.source),sep = '\n')
 
-dataset <- grep(unique(sif$data.source),pattern = 'WES-Plasma',value = TRUE)
+# dataset <- grep(unique(sif$data.source),pattern = 'WES-Plasma',value = TRUE)
+dataset <- unique(sif$data.source)
 omic <- 'DNA'
 aggregate_as <- 'mean'
 min_vaf <- 0.3

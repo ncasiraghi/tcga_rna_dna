@@ -33,3 +33,4 @@ for(fs in snps_data){
   
 }
 
+write.table(m,file = 'insilico_dataset.tsv',col.names = TRUE,row.names = FALSE,quote = FALSE,sep = '\t')
