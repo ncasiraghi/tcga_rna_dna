@@ -110,7 +110,7 @@ subsample_bam <- function(i, adm){
   }
 }
 #extract strings for samtools
-path_bam <- "/BCGLAB/2020_signatures/synthetic_dilutions/insilico_data"
+path_bam <- "/BCGLAB/2020_signatures/synthetic_dilutions/bams_insilico"
 # patient_folder <- do.call(c, lapply(1:nrow(sif), function(x) strsplit(sif$plasma.bam, "/")[[x]][8]))
 patient_folder <- sif$patient
 plasma_bam_name <- basename(sif$plasma.bam)
@@ -126,7 +126,8 @@ cores = 20
 
 tc.in <- sif$TC
 # TC <- seq(0.01,0.2,0.02)
-TC <- c(0.10,0.05,0.01)
+# TC <- c(0.10,0.05,0.01)
+TC <- 0.5
 
 for(tc in TC){
   # Compute subsampling percentage for plasma and germline to obtain 

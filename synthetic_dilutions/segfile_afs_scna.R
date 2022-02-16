@@ -100,6 +100,8 @@ for(smpl in ids){
     filter(cov > min.cov) %>% 
     mutate(af = if_else(af < 0.5,true = 1 - af,false = af))
   
+  # plot AF
+  
   p <- ggplot(df, aes(x=class, y=af)) + 
     geom_boxplot(varwidth = TRUE) +
     ggtitle(smpl)
