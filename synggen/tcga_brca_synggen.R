@@ -5,7 +5,7 @@ setwd('/BCGLAB/2020_signatures/synggen_inputs')
 
 # TCGA and SPICE ids
 
-ids <- fread('/BCGLAB/2020_signatures/synggen_inputs/ids_spice_tcga_brca.txt',stringsAsFactors = F,header = F,select = c(1,3:6),na.strings = "",col.names = c('spice_id','tcga_id','clonet_purity','clonet_ploidy','kit'))
+ids <- fread('/BCGLAB/2020_signatures/synggen_inputs/resources/ids_spice_tcga_brca.txt',stringsAsFactors = F,header = F,select = c(1,3:6),na.strings = "",col.names = c('spice_id','tcga_id','clonet_purity','clonet_ploidy','kit'))
 
 # sample info file
 
@@ -15,7 +15,7 @@ sif <- sif %>% mutate(plasma.snps=NA,germline.snps=NA,plasma.seg=NA,clonet.purit
 
 # seg file
 
-seg <- fread(input = '/BCGLAB/2020_signatures/synggen_inputs/brca_genomic_data.seg', 
+seg <- fread(input = '/BCGLAB/2020_signatures/synggen_inputs/resources/brca_genomic_data.seg', 
              data.table = FALSE,stringsAsFactors = FALSE,colClasses = list(numeric=2),nThread = 4,fill = TRUE,sep = '\t') %>% distinct()
 
 # get info
@@ -45,7 +45,7 @@ for(i in seq_len(nrow(sif))){
     
     # pacbam
     
-    BED <- '/BCGLAB/2020_signatures/synggen_inputs/Gencode.Exome.hg38.bed'
+    BED <- '/BCGLAB/2020_signatures/biomart_dbsnp/mart_export_GRCh38.sort.merged.chr.bed'
     VCF <- '/BCGLAB/2020_signatures/biomart_dbsnp/dbsnp_151_all_biomart_GRCh38.chr.vcf'
     FASTA <- '/CIBIO/sharedRL/Projects/ASE/Annotations/GRCh38.d1.vd1.fa'
     OUT <- '/BCGLAB/2020_signatures/synggen_inputs/pacbam'
@@ -64,7 +64,7 @@ for(i in seq_len(nrow(sif))){
     sif$clonet.ploidy[i] <- unique(info$clonet_ploidy)
     sif$clonet.purity[i] <- unique(info$clonet_purity)
     sif$kit[i] <- unique(info$kit)
-    sif$kit[i] <- BED
+    sif$kit[i] <- '/BCGLAB/2020_signatures/synggen_inputs/resources/Gencode.Exome.hg38.bed'
     
   }
   
