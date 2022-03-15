@@ -64,7 +64,7 @@ for(i in seq_len(nrow(sif))){
     sif$clonet.ploidy[i] <- unique(info$clonet_ploidy)
     sif$clonet.purity[i] <- unique(info$clonet_purity)
     sif$kit[i] <- unique(info$kit)
-    sif$kit[i] <- '/BCGLAB/2020_signatures/synggen_inputs/resources/Gencode.Exome.hg38.bed'
+    sif$kit.bed[i] <- '/BCGLAB/2020_signatures/synggen_inputs/resources/Gencode.Exome.hg38.bed'
     
   }
   
