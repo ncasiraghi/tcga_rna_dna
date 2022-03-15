@@ -1,17 +1,19 @@
-library(dplyr)
+library(tidyverse)
 
-setwd('/BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted')
+# build up the sh script to run computeData.R
 
-rscript <- 'Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData.R'
+setwd('/BCGLAB/ncasiraghi/tcga_rna_dna/computeData')
 
-# sif.file <- '/BCGLAB/ncasiraghi/tcga_rna_dna/data/full_dataset.tsv'
-sif.file <- '/BCGLAB/ncasiraghi/tcga_rna_dna/data/insilico_dataset.tsv'
+rscript <- 'Rscript /BCGLAB/ncasiraghi/tcga_rna_dna/computeData/computeData.R'
+
+# select samples of interest
+
+sif.file <- '/BCGLAB/ncasiraghi/tcga_rna_dna/data/synggen_dataset.tsv'
 
 sif <- read.delim(file = sif.file,header = TRUE,stringsAsFactors = FALSE)
 
 cat(unique(sif$data.source),sep = '\n')
 
-# dataset <- grep(unique(sif$data.source),pattern = 'WES-Plasma',value = TRUE)
 dataset <- unique(sif$data.source)
 omic <- 'DNA'
 aggregate_as <- 'mean'

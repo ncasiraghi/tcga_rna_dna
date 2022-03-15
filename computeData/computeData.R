@@ -5,7 +5,7 @@ library(parallel)
 options(dplyr.summarise.inform = FALSE)
 options(scipen = 9999)
 
-source('/BCGLAB/ncasiraghi/tcga_rna_dna/Pstep_modified_weighted/computeData_functions.R')
+source('/BCGLAB/ncasiraghi/tcga_rna_dna/computeData/computeData_functions.R')
 
 args <- commandArgs(trailingOnly = TRUE)
 
